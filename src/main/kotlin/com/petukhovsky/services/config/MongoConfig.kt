@@ -3,7 +3,7 @@ package com.petukhovsky.services.config
 import com.mongodb.DBObject
 import com.mongodb.Mongo
 import com.mongodb.MongoClient
-import com.petukhovsky.services.ExampleApplication
+import com.petukhovsky.services.ServicesApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
