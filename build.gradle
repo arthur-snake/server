@@ -63,8 +63,9 @@ task buildDocker(type: Docker, dependsOn: build) {
     addFile("${jar.baseName}-${version}.jar", "app.jar")
     runCommand("sh -c 'touch /app.jar'")
     entryPoint(["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"])
-    tag = '192.168.1.140:5000/arthur/services'
-    push = true
+    tag = 'arthur/services'
+    push = false
+    dryRun = true
     tagVersion = 'latest'
     applicationName = jar.baseName
     doFirst {
