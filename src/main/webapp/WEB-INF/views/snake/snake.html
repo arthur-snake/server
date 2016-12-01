@@ -1,0 +1,116 @@
+
+
+<html>
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Eat cells smaller than you and don't get eaten by the bigger ones, as an MMO"/>
+    <meta name="keywords" content="html5, snake"/>
+    <meta name="robots" content="index, follow"/>
+    <meta name="viewport" content="minimal-ui, width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="/resources/snake/servers.js"></script>
+
+    <title>Snake at qjex</title>
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        #canvas {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
+
+</head>
+<body>
+<div id="overlays" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 2;">
+    <div id="helloDialog" style="width: 350px; background-color: #FFFFFF; margin: 100px auto; border-radius: 15px; padding: 5px 15px 5px 15px;">
+        <form role="form" onsubmit="game.join(document.getElementById('nick').value); return false;">
+            <div class="form-group">
+                <h2><center>Hello</center></h2>
+            </div>
+
+            <div class="form-group">
+                <p>Type your nick or leave it empty:</p>
+                <select class="form-control" id="droplist">
+                </select>
+                <br/>
+                <input id="nick" class="form-control" placeholder="Nick" maxlength="14"/>
+            </div>
+
+            <div class="form-group">
+                <input type="button" id="join" onclick="game.join(document.getElementById('nick').value); return false;	" class="btn btn-block btn-primary" value="Play"/>
+            </div>
+            <script type="text/javascript">
+                servers.getNames().forEach(function(item) {
+                    document.getElementById('droplist').innerHTML += '<option>' + item + '</option>';
+                });
+                $(function() {
+                    var updateServer = function(){
+                        var selected = $(this).find("option:selected").index();
+                        game.changeServer(servers.getServer(selected));
+                    };
+                    $('.form-control').on('change', updateServer);
+                });
+            </script>
+        </form>
+
+        <hr />
+
+        <center><span class="text-muted">Controls: Move your kek to control your masha.<br/>Press space to kek.</span></center>
+
+        <hr />
+
+        <!--Google ad place-->
+
+        <hr style="margin-bottom: 7px; "/>
+
+        <div style="margin-bottom: 5px; float: left; line-height: 32px; margin-left: 6px; height: 32px;"><a href="privacy.txt" class="text-muted">Privacy Policy</a></div>
+
+        <div class="a2a_kit a2a_kit_size_32 a2a_default_style" style="float:right;">
+            <!--share buttons-->
+            <a class="a2a_dd" href=""></a>
+            <a class="a2a_button_facebook"></a>
+            <a class="a2a_button_twitter"></a>
+            <a class="a2a_button_google_plus"></a>
+        </div>
+        <script type="text/javascript">
+            var a2a_config = a2a_config || {};
+            a2a_config.linkname = "Snake QjeX";
+            a2a_config.linkurl = "http://snake.qjex.org/";
+            a2a_config.onclick = 1;
+            a2a_config.num_services = 6;
+        </script>
+        <script type="text/javascript" src="http://static.addtoany.com/menu/page.js"></script>
+        <br clear="both" />
+    </div>
+</div>
+
+<canvas id="canvas" width="800" height="600"></canvas>
+<div style="font-family:'Ubuntu'">&nbsp;</div>
+<script src="/resources/snake/game.js"></script>
+
+<script>
+    //AD INJECTOR
+
+</script>
+
+</body>
+</html>
