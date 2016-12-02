@@ -8,7 +8,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 val objectMapper = ObjectMapper()
-        .enable(SerializationFeature.INDENT_OUTPUT)
         .registerKotlinModule()
 
 
