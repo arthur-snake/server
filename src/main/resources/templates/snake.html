@@ -57,16 +57,16 @@
             </div>
 
             <div class="form-group">
-                <input type="button" id="join" onclick="game.join($('#nick').val()); return false;" class="btn btn-block btn-primary" value="Play"/>
+                <input type="button" id="join" onclick="joinGame($('#nick').val()); return false;" class="btn btn-block btn-primary" value="Play"/>
             </div>
             <script type="text/javascript">
-                servers.getNames().forEach(function(item) {
+                servers.getNames().forEach((item) => {
                     $('#droplist').append('<option>' + item + '</option>');
                 });
                 $(function() {
-                    var updateServer = function(){
-                        var selected = $(this).find("option:selected").index();
-                        game.changeServer(servers.getServer(selected));
+                    const updateServer = () => {
+                        const selected = $(this).find("option:selected").index();
+                        changeServer(servers.getServer(selected));
                     };
                     $('.form-control').on('change', updateServer);
                 });
