@@ -8,5 +8,5 @@ import org.springframework.web.bind.annotation.RequestMapping
 class HomeController {
 
     @RequestMapping(value = "/snake")
-    fun index(): String = "snake/snake"
+    fun index(): String = "snake"
 }
