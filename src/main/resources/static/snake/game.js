@@ -42,8 +42,8 @@ function Game() {
     }
 
     var resizeAll = function() {
-        width = canvas.width = document.body.clientWidth;
-        height = canvas.height = document.body.clientHeight;
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
         cellSize = Math.min(Math.floor((width + indent) / columns - indent), Math.floor((height + indent) / rows - indent));
         var heightField = rows * (cellSize + indent);
         var widthField = columns * (cellSize + indent);
@@ -91,7 +91,7 @@ function Game() {
 
     var messageReceived = function(e) {
         var msg = e.data;
-        console.log("debug: " + msg);
+        //console.log("debug: " + msg);
         //if (msg.length > 0 && msg.startsWith("*")) msg = msg.substring(1);
         var arr = msg.split("|");
         var info = arr[0];
