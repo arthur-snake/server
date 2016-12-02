@@ -11,6 +11,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
+        classpath 'org.springframework:springloaded:1.2.0.RELEASE'
         classpath('se.transmode.gradle:gradle-docker:1.2')
     }
 }
@@ -48,7 +49,6 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-websocket')
 
-    classpath 'org.springframework:springloaded:1.2.0.RELEASE'
     compile("org.springframework.boot:spring-boot-devtools")
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
