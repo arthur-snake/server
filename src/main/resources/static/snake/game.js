@@ -109,7 +109,7 @@ const showPanel = () => {
     state = 'panel';
     $('#overlays').css({"display": "block", "opacity": 0});
     panelOpacity = 0;
-    if (connection == 1) ws.send("4");
+    if (connection == 1) ws.send(JSON.stringify({act: "leave"}));
     showingPanel();
 };
 
