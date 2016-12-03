@@ -38,10 +38,12 @@ class GameServer(val game: Game) {
             players.forEach { it.moveFront() }
             players.forEach { it.moveBack() }
             game.food.placeFoodUntil(game.config.foodCells)
+            val message = game.builder.buildMessage()
+
             game.initHelper.clear()
             game.obj.cur.clear()
-            val message = game.builder.buildMessage()
             game.changedCells.clear()
+
             game.subs.broadcast(objectMapper.writeValueAsString(message))
         }
     }

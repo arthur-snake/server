@@ -4,11 +4,6 @@ import com.petukhovsky.snake.game.Game
 import com.petukhovsky.snake.prot.IdInfo
 
 class ObjectsManager(val game: Game) {
-    val free: IdObject = FreeObject("0").apply { add(this) }
-
-    private val foodId: String = gen().apply { add(FoodObject(this, 0)) }
-    fun food(food: Int) = FoodObject(foodId, food)
-
     val all = mutableMapOf<String, IdObject>()
     val cur = mutableMapOf<String, IdObject>()
 
@@ -34,4 +29,10 @@ class ObjectsManager(val game: Game) {
     }
 
     private fun randomChar() = lib[game.random.nextInt(lib.length)]
+
+
+    val free: IdObject = FreeObject("0").apply { add(this) }
+
+    private val foodId: String = gen().apply { add(FoodObject(this, 0)) }
+    fun food(food: Int) = FoodObject(foodId, food)
 }

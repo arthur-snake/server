@@ -15,6 +15,10 @@ class Game(val config: SnakeConfig) {
     val rows = config.size.height
     val columns = config.size.width
 
+    val initHelper = InitMessageHelper(this)
+    val food = FoodManager(this)
+    val obj = ObjectsManager(this)
+
     val changedCells = mutableSetOf<SnakeCell>()
 
     val subs = SubService<String>()
@@ -22,10 +26,6 @@ class Game(val config: SnakeConfig) {
     val players = mutableSetOf<SnakePlayer>()
 
     val builder = MessageBuilder(this)
-
-    val initHelper = InitMessageHelper(this)
-    val food = FoodManager(this)
-    val obj = ObjectsManager(this)
 
     private val server = GameServer(this).apply { start() }
 

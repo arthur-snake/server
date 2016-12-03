@@ -16,15 +16,17 @@ open class UpdMessage(
         @JsonInclude(JsonInclude.Include.NON_EMPTY) val u : Array<IdInfo>
 ) : ServerMessage()
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class IdInfo(
         val id: String,
         val type: String,
-        val color: String
+        val color: String,
+        val nick: String? = null
 )
 
 class InitMessage(
-    a: String,
-    u: Array<IdInfo>,
-    val sizeX: Int,
-    val sizeY: Int
+        a: String,
+        u: Array<IdInfo>,
+        val rows: Int,
+        val columns: Int
 ) : UpdMessage(a, u)

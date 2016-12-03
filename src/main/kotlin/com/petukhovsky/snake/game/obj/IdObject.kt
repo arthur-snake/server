@@ -17,7 +17,7 @@ class FoodObject(id: String, val food: Int) : IdObject(id) {
 }
 
 class PlayerObject(id: String, val player: SnakePlayer) : IdObject(id) {
-    override fun toInfo(): IdInfo = IdInfo(id, "player", player.color)
+    override fun toInfo(): IdInfo = IdInfo(id, "player", player.color, player.nickname)
 }
 
 class BlockObject(id: String) : IdObject(id) {

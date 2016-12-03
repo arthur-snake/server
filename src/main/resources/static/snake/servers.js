@@ -2,7 +2,8 @@
 
 function Servers() {
 	const list = [
-		['ws://wrt.qjex.xyz:8080/snake/ws/main', 'main server']
+        ['ws://localhost:8080/snake/ws/main', 'main server'],
+        ['ws://wrt.qjex.xyz:8080/snake/ws/main', 'main server']
 	];
 	
 	this.getNames = () => {

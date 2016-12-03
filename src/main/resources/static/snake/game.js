@@ -29,17 +29,6 @@ let textIndent;
 let xShift = 0;
 let yShift = 0;
 
-const init = () => {
-    document.onkeydown = (e) => {
-        const evt = e || event;
-        handleKeypress(evt);
-    };
-    initCanvas();
-    initMap(0, 0);
-    document.body.onresize = resizeAll;
-    reconnect();
-};
-
 const resizeAll = () => {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
@@ -54,6 +43,8 @@ const resizeAll = () => {
     drawFrame();
 };
 
+
+//server messages
 const reconnect = () => {
     connection = 0;
     showPanel();
@@ -82,31 +73,36 @@ const parseCellInfo = (info) => {
     } else {
         pos3 = info.length;
     }
-    obj.x = parseInt(info.slice(0, pos1));
-    obj.y = parseInt(info.slice(pos1 + 1, pos2));
-    obj.color = info.slice(pos2, pos3);
+    obj.x = parseInt(info.slice(0, pos1)); //server.y
+    obj.y = parseInt(info.slice(pos1 + 1, pos2)); //server.x
+    obj.id = info.slice(pos2 + 1, pos3);
+    obj.info = ids[obj.id];
+    obj.color = obj.info.color;
     return obj;
 };
 
 const messageReceived = (e) => {
-    const msg = e.data;
-    //console.log("debug: " + msg);
-    //if (msg.length > 0 && msg.startsWith("*")) msg = msg.substring(1);
-    const arr = msg.split("|");
-    const info = arr[0];
-    if (info !== "") { //first message
-        const arr2 = info.split(";");
-        console.log("Server map size: " + arr2[0] + " " + arr2[1]);
-        initMap(arr2[0], arr2[1]);
-        drawFrame();
+    const msg = JSON.parse(e.data);
+    console.log(msg);
+    if (msg.act == "init") {
+        let {rows, columns} = msg;
+        console.log(`Server map size: ${rows} ${columns}`);
+        initMap(rows, columns);
+        drawFrame()
     }
+    updateIds(msg.u);
+    const sarr = msg.a;
+    if (typeof sarr === "undefined") return;
+    const arr = sarr.split("|");
     const events = [];
-    for (let i = 1; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++) {
         events.push(parseCellInfo(arr[i]));
     }
     changeMap(events);
 };
 
+
+//panel
 const showPanel = () => {
     if (state === 'panel')
         return;
@@ -130,9 +126,11 @@ const showGame = () => {
     if (state === 'game' || connection != 1)return;
     state = 'game';
     $("#overlays").css("display", "none");
-    ws.send("5" + nick);
+    ws.send(JSON.stringify({act: "join"}));
 };
 
+
+//map
 const clearField = () => {
     initMap(0, 0);
     drawFrame();
@@ -164,27 +162,50 @@ const changeMap = (events) => {
     }
 };
 
-const changeDirection = (dir) => {
-    if (state !== 'game') return;
-    //console.log("New Direction: " + dir);
-    ws.send(dir);
-};
-
+//keys
 const handleKeypress = (e) => {
     const code = e.keyCode;
     //console.log("Key: " + code);
     if (state == 'game') {
-        if (code >= 37 && code <= 40) //Arrows
-            changeDirection(+code - 37);
-        if (code == 27) //Escape
+        if (code >= 37 && code <= 40) { //Arrows
+            switch (code) {
+                case 37:
+                    changeDirection("LEFT");
+                    break;
+                case 38:
+                    changeDirection("UP");
+                    break;
+                case 39:
+                    changeDirection("RIGHT");
+                    break;
+                case 40:
+                    changeDirection("DOWN");
+                    break;
+            }
+        }
+        if (code == 27) { //Escape
             showPanel();
+        }
     }
     if (state == 'panel') {
         if (code == 13) //Enter
-            joinGame(document.getElementById('nick').value);
+            joinGame($('#nick').val());
     }
 };
 
+const onKeyDown = (e) => {
+    const evt = e || event;
+    handleKeypress(evt);
+};
+
+const changeDirection = (dir) => {
+    if (state !== 'game') return;
+    //console.log("New Direction: " + dir);
+    ws.send(JSON.stringify({act: "turn", "dir": dir}));
+};
+
+
+//canvas
 const drawFrame = () => {
     ctx.fillStyle = defaultColor;
     ctx.fillRect(0, 0, width, height);
@@ -214,37 +235,53 @@ let initCanvas = () => {
             window.setTimeout(callback, 1000 / 60);
         };
 
-    canvas.onmousedown = function(e) {
-        const event = e || window.event;
-        let mouseX, mouseY;
-        if (document.attachEvent != null) {
-            mouseX = window.event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-            mouseY = window.event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-        } else {
-            mouseX = event.clientX + window.scrollX;
-            mouseY = event.clientY + window.scrollY;
-        }
+    canvas.onmousedown = onMouseDown
+};
 
-        //mouseX -= nx;
-        //mouseY -= ny;
 
-        const x = mouseX / width;
-        const y = mouseY / height;
-        //console.log(mouseX + ":" + mouseY);
-        //if (x + y <= 1) {
-        //	if (x > y) changeDirection(1);
-        //	else changeDirection(0);
-        //} else {
-        //	x = 1 - x;
-        //	y = 1 - y;
-        //	if (x > y) changeDirection(3);
-        //	else changeDirection(2);
-        //}
+//mouse
+const onMouseDown = (e) => {
+    const event = e || window.event;
+    let mouseX, mouseY;
+    if (document.attachEvent != null) {
+        mouseX = window.event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+        mouseY = window.event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+    } else {
+        mouseX = event.clientX + window.scrollX;
+        mouseY = event.clientY + window.scrollY;
+    }
+
+    //mouseX -= nx;
+    //mouseY -= ny;
+
+    const x = mouseX / width;
+    const y = mouseY / height;
+    //console.log(mouseX + ":" + mouseY);
+    //if (x + y <= 1) {
+    //	if (x > y) changeDirection(1);
+    //	else changeDirection(0);
+    //} else {
+    //	x = 1 - x;
+    //	y = 1 - y;
+    //	if (x > y) changeDirection(3);
+    //	else changeDirection(2);
+    //}
+};
+
+
+//Ids
+const ids = {};
+
+const updateIds = (arr) => {
+    if (typeof arr === "undefined") return;
+    for (let i = 0; i < arr.length; i++) {
+        const ii = arr[i];
+        ids[ii.id] = ii
     }
 };
 
-window.addEventListener("load", init, false);
 
+//ui
 const joinGame = (nickname) => {
     nick = nickname;
     showGame();
@@ -255,3 +292,15 @@ const changeServer = (newServer) => {
     server = newServer;
     ws.close();
 };
+
+
+//init
+const init = () => {
+    document.onkeydown = onKeyDown;
+    initCanvas();
+    initMap(0, 0);
+    document.body.onresize = resizeAll;
+    reconnect();
+};
+
+window.addEventListener("load", init, false);

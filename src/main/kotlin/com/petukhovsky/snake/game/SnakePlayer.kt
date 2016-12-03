@@ -1,5 +1,6 @@
 package com.petukhovsky.snake.game
 
+import com.petukhovsky.snake.game.obj.FoodObject
 import com.petukhovsky.snake.game.obj.IdObject
 import com.petukhovsky.snake.game.obj.PlayerObject
 import com.petukhovsky.snake.info.AnyMoment
@@ -54,16 +55,16 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
     @AnyMoment
     fun join(nick: String): Boolean {
         if (inGame) return false
-        this.nickname = nick
         synchronized(game) {
             val point = game.raf.get() ?: return false
+            this.nickname = nick
             stock = 2
             inGame = true
             game.players.add(this)
             color = getRandomColor(game.random)
             controller = SnakeController()
             obj = PlayerObject(game.obj.gen(), this).apply { game.obj.add(this) }
-            cells = ArrayDeque(listOf(game[point].apply { set(obj!!) }))
+            cells = ArrayDeque(listOf(game[point].apply { set(obj) }))
         }
         return true
     }
@@ -77,6 +78,7 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
         assert(inGame == true)
         val cell = game[game.config.size.move(cells.last.x, cells.last.y, controller.direction())]
         if (!cell.availableToJoin()) return
+        if (cell.obj is FoodObject) stock += (cell.obj as FoodObject).food
         cell.set(obj!!)
         controller.move()
         cells.add(cell)

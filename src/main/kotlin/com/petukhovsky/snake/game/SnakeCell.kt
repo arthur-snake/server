@@ -8,7 +8,7 @@ import kotlin.properties.Delegates
 
 class SnakeCell(val x: Int, val y: Int, val game: Game) {
 
-    private var obj: IdObject = game.obj.free
+    var obj: IdObject = game.obj.free
 
     private var food: Int by Delegates.observable(0) {
         prop, old, new ->
@@ -22,7 +22,7 @@ class SnakeCell(val x: Int, val y: Int, val game: Game) {
         return obj is FreeObject || obj is FoodObject
     }
 
-    fun toMessage() = "$y.$x.${obj.id}" + if (obj is FoodObject) "*${(obj as FoodObject).food}" else ""
+    fun toMessage() = "$y.$x#${obj.id}" + if (obj is FoodObject) "*${(obj as FoodObject).food}" else ""
 
     fun set(obj: IdObject) {
         game.raf[x, y] = obj !is FreeObject
