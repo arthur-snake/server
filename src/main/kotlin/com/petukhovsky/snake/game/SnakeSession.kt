@@ -1,6 +1,9 @@
 package com.petukhovsky.snake.game
 
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.petukhovsky.services.objectMapper
 import com.petukhovsky.snake.game.Game
+import com.petukhovsky.snake.prot.*
 import com.petukhovsky.snake.util.getDirectionFromInt
 import java.io.Closeable
 
@@ -11,12 +14,13 @@ abstract class SnakeSession(game: Game): Closeable {
     fun init() = player
 
     fun onMessage(message: String) {
-        if (message.startsWith("5")) player.join(message.substring(1))
-        else {
-            val i = message.toInt()
-            when (i) {
-                4 -> player.leave()
-                in 0..3 -> player.changeDirection(getDirectionFromInt(i))
+        val msg = objectMapper.readValue<PlayerMessage>(message)
+        when (msg) {
+            is JoinMessage -> player.join(msg.nick)
+            is LeaveMessage -> player.leave()
+            is TurnMessage -> player.changeDirection(msg.dir)
+            is ChatMessage -> {
+                //TODO
             }
         }
     }
@@ -24,7 +28,6 @@ abstract class SnakeSession(game: Game): Closeable {
     override fun close() {
         player.destroy();
     }
-
 
     abstract fun sendString(message: String)
 }

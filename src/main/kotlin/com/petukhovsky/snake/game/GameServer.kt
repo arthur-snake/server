@@ -1,5 +1,6 @@
 package com.petukhovsky.snake.game
 
+import com.petukhovsky.services.objectMapper
 import org.slf4j.LoggerFactory
 import java.util.*
 import kotlin.concurrent.timerTask
@@ -36,11 +37,14 @@ class GameServer(val game: Game) {
             val players = game.players.sortedBy { it.size }
             players.forEach { it.moveFront() }
             players.forEach { it.moveBack() }
-            while (game.foodOnMap < game.config.foodCells && game.placeFood()) {}
-            game.firstMessage = null
-            val message = game.buildMessage()
+            game.food.placeFoodUntil(game.config.foodCells)
+            val message = game.builder.buildMessage()
+
+            game.initHelper.clear()
+            game.obj.cur.clear()
             game.changedCells.clear()
-            game.subs.broadcast(message)
+
+            game.subs.broadcast(objectMapper.writeValueAsString(message))
         }
     }
 }
