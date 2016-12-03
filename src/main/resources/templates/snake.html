@@ -16,7 +16,7 @@
 
     <script src="../static/js/jquery-3.1.1.min.js" th:src="@{/js/jquery-3.1.1.min.js}"></script>
     <script src="../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
-    <script src="../static/snake/servers.js" th:src="@{/snake/servers.js}"></script>
+    <script src="../offline/servers.js" th:src="@{/snake/servers.js}"></script>
 
     <title>Snake at A.s</title>
 
@@ -35,6 +35,27 @@
             width: 100%;
             height: 100%;
         }
+        #top-list {
+            z-index: 0;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            background: rgba(31,31,31,0.33);
+            opacity: 0.5;
+            padding: 17px;
+        }
+        .top-element {
+            font-size: 30px;
+            color: white;
+            margin-bottom: 0;
+        }
+        .color-preview {
+            width: 23px;
+            height: 23px;
+            display: inline-block;
+            border-radius: 100%;
+            margin-right: 8px;
+        }
     </style>
 
     <link href='http://fonts.googleapis.com/css?family=Ubuntu:700' rel='stylesheet' type='text/css'/>
@@ -44,7 +65,7 @@
 <body>
 <div id="overlays" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 2;">
     <div id="helloDialog" style="width: 350px; background-color: #FFFFFF; margin: 100px auto; border-radius: 15px; padding: 5px 15px 5px 15px;">
-        <form role="form" onsubmit="game.join(document.getElementById('nick').value); return false;">
+        <form role="form" onsubmit="joinGame($('#nick').val()); return false;">
             <div class="form-group">
                 <h2 style="text-align: center">Hello</h2>
             </div>
@@ -88,6 +109,7 @@
 </div>
 
 <canvas id="canvas" width="800" height="600"></canvas>
+<div id="top-list"></div>
 <script src="../static/snake/game.js" th:src="@{/snake/game.js}"></script>
 
 </body>

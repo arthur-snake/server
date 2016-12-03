@@ -1,5 +1,8 @@
 'use strict';
 
+//Features
+let displayAllStats = false;
+
 //Connection
 let server = servers.getServer(0);
 let connection = 0;
@@ -83,7 +86,7 @@ const parseCellInfo = (info) => {
 
 const messageReceived = (e) => {
     const msg = JSON.parse(e.data);
-    console.log(msg);
+    //console.log(msg);
     if (msg.act == "init") {
         let {rows, columns} = msg;
         console.log(`Server map size: ${rows} ${columns}`);
@@ -118,7 +121,7 @@ let panelOpacity = 0;
 const showingPanel = () => {
     //console.log("showing " + panelOpacity);
     panelOpacity += 0.02;
-    $("#overlays").css(opacity, panelOpacity);
+    $("#overlays").css("opacity", panelOpacity);
     if (panelOpacity < 1) setTimeout(showingPanel, 0.5);
 };
 
@@ -126,7 +129,7 @@ const showGame = () => {
     if (state === 'game' || connection != 1)return;
     state = 'game';
     $("#overlays").css("display", "none");
-    ws.send(JSON.stringify({act: "join"}));
+    ws.send(JSON.stringify({act: "join", "nick": nick}));
 };
 
 
@@ -146,20 +149,6 @@ const initMap = (r, c) => {
         }
     }
     resizeAll();
-};
-
-const changeMap = (events) => {
-    for (let i = 0; i < events.length; i++) {
-        map[events[i].y][events[i].x] = events[i];
-        ctx.fillStyle = events[i].color;
-        ctx.fillRect(xShift + events[i].x * (cellSize + indent), yShift + events[i].y * (cellSize + indent), cellSize, cellSize);
-        if (typeof events[i].points !== "undefined") {
-            ctx.fillStyle = 'black';
-            ctx.font = 'bold ' + Math.max(0, cellSize - 2) + 'px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(events[i].points + "", xShift + events[i].x * (cellSize + indent) + cellSize / 2, yShift + events[i].y * (cellSize + indent) + textIndent);
-        }
-    }
 };
 
 //keys
@@ -221,9 +210,10 @@ const drawFrame = () => {
             }
         }
     }
+    updateStats();
 };
 
-let initCanvas = () => {
+const initCanvas = () => {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
     requestAnimFrame = window.requestAnimationFrame ||
@@ -236,6 +226,66 @@ let initCanvas = () => {
         };
 
     canvas.onmousedown = onMouseDown
+};
+
+const changeMap = (events) => {
+    for (let i = 0; i < events.length; i++) {
+        map[events[i].y][events[i].x] = events[i];
+        ctx.fillStyle = events[i].color;
+        ctx.fillRect(xShift + events[i].x * (cellSize + indent), yShift + events[i].y * (cellSize + indent), cellSize, cellSize);
+        if (typeof events[i].points !== "undefined") {
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold ' + Math.max(0, cellSize - 2) + 'px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(events[i].points + "", xShift + events[i].x * (cellSize + indent) + cellSize / 2, yShift + events[i].y * (cellSize + indent) + textIndent);
+        }
+    }
+    updateStats();
+};
+
+
+//stats
+const updateStats = () => {
+    const stats = {};
+    const infos = {};
+    for (let i = 0; i < map.length; i++) {
+        for (let j = 0; j < map[i].length; j++) {
+            const c = map[i][j];
+            const info = c.info;
+            if (typeof info === "undefined") continue;
+            if (!displayAllStats && (info.type == "free" || info.type == "food" || info.type == "block")) continue;
+            if (typeof stats[info.id] === "undefined") stats[info.id] = 0;
+            stats[info.id]++;
+            infos[info.id] = info;
+        }
+    }
+    const arr = [];
+    for (let prop in stats) {
+        arr.push({id: prop, count: stats[prop], info: infos[prop]});
+    }
+    arr.sort((a, b) => {
+        if (a.count > b.count) return -1;
+        if (a.count == b.count) return 0;
+        return 1;
+    });
+    const h = $("#top-list");
+    const els = [];
+    let pos = 1;
+    for (let j = 0; j < arr.length; j++) {
+        let name;
+        const i = arr[j];
+        if (i.info.type == "player") name = i.info.nick;
+        else if (i.info.type == "food") name = "Food";
+        else if (i.info.type == "free") name = "Empty";
+        else if (i.info.type == "block") name = "Block";
+        let s = pos + ". " + name + " " + i.count;
+        pos++;
+        els.push($(document.createElement("p")).addClass("top-element")
+            .append($(document.createElement("span")).addClass("color-preview").css("background-color", i.info.color))
+            .append($(document.createElement("span")).text(s)));
+    }
+    h.empty();
+    h.append(...els);
 };
 
 
