@@ -24,7 +24,13 @@ class SubService<T> {
         synchronized(this) {
             val actions = map.values.toTypedArray()
             Thread({
-                actions.forEach { it(message) }
+                actions.forEach {
+                    try {
+                        it(message)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
             }).start()
         }
     }

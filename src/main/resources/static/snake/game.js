@@ -318,7 +318,6 @@ const onMouseDown = (e) => {
     //}
 };
 
-
 //Ids
 const ids = {};
 
@@ -334,6 +333,7 @@ const updateIds = (arr) => {
 //ui
 const joinGame = (nickname) => {
     nick = nickname;
+    console.log("join: " + nickname);
     showGame();
 };
 
