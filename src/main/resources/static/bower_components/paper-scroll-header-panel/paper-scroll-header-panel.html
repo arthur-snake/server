@@ -1,0 +1,84 @@
+<html><head><link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+
+
+
+</head><body><dom-module id="paper-scroll-header-panel">
+
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #mainContainer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -webkit-overflow-scrolling: touch;
+      overflow-x: hidden;
+      overflow-_y: auto;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    #headerContainer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+    }
+
+    .bg-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #headerBg {
+      @apply(--paper-scroll-header-panel-full-header);
+    }
+
+    #condensedHeaderBg {
+      @apply(--paper-scroll-header-panel-condensed-header);
+    }
+
+    #headerBg, #condensedHeaderBg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center center;
+    }
+
+    #condensedHeaderBg {
+      opacity: 0;
+    }
+  </style>
+  <template>
+    <div id="mainContainer">
+      <content id="mainContent" select=":not(paper-toolbar):not(.paper-header)"></content>
+    </div>
+    <div id="headerContainer">
+      <div class="bg-container">
+        <div id="condensedHeaderBg"></div>
+        <div id="headerBg"></div>
+      </div>
+      <content id="headerContent" select="paper-toolbar, .paper-header"></content>
+    </div>
+  </template>
+</dom-module>
+
+<script>!function(){"use strict";if(Polymer({is:"paper-scroll-header-panel",behaviors:[Polymer.IronResizableBehavior],properties:{condenses:{type:Boolean,value:!1,observer:"_condensesChanged"},noDissolve:{type:Boolean,value:!1},noReveal:{type:Boolean,value:!1},fixed:{type:Boolean,value:!1},keepCondensedHeader:{type:Boolean,value:!1},headerHeight:{type:Number,value:0},condensedHeaderHeight:{type:Number,value:0},scrollAwayTopbar:{type:Boolean,value:!1},_headerMargin:{type:Number},_prevScrollTop:{type:Number},_y:{type:Number}},observers:["_setup(_headerMargin, headerHeight, fixed)","_headerHeightChanged(headerHeight, condensedHeaderHeight)","_condensedHeaderHeightChanged(headerHeight, condensedHeaderHeight)"],listeners:{"iron-resize":"measureHeaderHeight"},ready:function(){this.async(this.measureHeaderHeight,5),this._scrollHandler=this._scroll.bind(this),this.scroller.addEventListener("scroll",this._scrollHandler)},detached:function(){this.scroller.removeEventListener("scroll",this._scrollHandler)},get header(){return Polymer.dom(this.$.headerContent).getDistributedNodes()[0]},get content(){return Polymer.dom(this.$.mainContent).getDistributedNodes()[0]},get scroller(){return this.$.mainContainer},measureHeaderHeight:function(){var e=this.header;e&&e.offsetHeight&&(this.headerHeight=e.offsetHeight)},_headerHeightChanged:function(){this.condensedHeaderHeight||(this.condensedHeaderHeight=1*this.headerHeight/3)},_condensedHeaderHeightChanged:function(){this.headerHeight&&(this._headerMargin=this.headerHeight-this.condensedHeaderHeight)},_condensesChanged:function(){this.condenses?this._scroll():this._condenseHeader(null)},_setup:function(){var e=this.scroller.style;e.paddingTop=this.fixed?"":this.headerHeight+"px",e.top=this.fixed?this.headerHeight+"px":"",this.fixed?this._transformHeader(null):this._scroll()},_transformHeader:function(e){var t=this.$.headerContainer.style;this._translateY(t,-e),this.condenses&&this._condenseHeader(e),this.fire("paper-header-transform",{y:e,height:this.headerHeight,condensedHeight:this.condensedHeaderHeight})},_condenseHeader:function(e){var t=null===e;!this.scrollAwayTopbar&&this.header.$&&this.header.$.topBar&&this._translateY(this.header.$.topBar.style,t?null:Math.min(e,this._headerMargin));var r=this.$.headerBg.style;if(this.noDissolve||(r.opacity=t?"":(this._headerMargin-e)/this._headerMargin),this._translateY(r,t?null:e/2),!this.noDissolve){var s=this.$.condensedHeaderBg.style;s=this.$.condensedHeaderBg.style,s.opacity=t?"":e/this._headerMargin,this._translateY(s,t?null:e/2)}},_translateY:function(t,r){var s=null===r?"":"translate3d(0, "+r+"px, 0)";e(t,s)},_scroll:function(e){if(this.header){var t=this.scroller.scrollTop;this._y=this._y||0,this._prevScrollTop=this._prevScrollTop||0;var r=Math.min(this.keepCondensedHeader?this._headerMargin:this.headerHeight,Math.max(0,this.noReveal?t:this._y+t-this._prevScrollTop));this.condenses&&this._prevScrollTop>=t&&t>this._headerMargin&&(r=Math.max(r,this._headerMargin)),e&&(this.fixed||r===this._y)||this._transformHeader(r),this._prevScrollTop=Math.max(t,0),this._y=r,e&&this.fire("content-scroll",{target:this.scroller},this,!1)}}}),void 0!==document.documentElement.style.transform)var e=function(e,t){e.transform=t};else var e=function(e,t){e.webkitTransform=t}}();</script>
+</body></html>
