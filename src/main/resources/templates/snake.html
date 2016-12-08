@@ -17,6 +17,7 @@
     <script src="../static/js/jquery-3.1.1.min.js" th:src="@{/js/jquery-3.1.1.min.js}"></script>
     <script src="../static/js/bootstrap.min.js" th:src="@{/js/bootstrap.min.js}"></script>
     <script src="../offline/servers.js" th:src="@{/snake/servers.js}"></script>
+    <script src="../static/snake/snake.js" th:src="@{/snake/snake.js}"></script>
 
     <title>Snake at A.s</title>
 
@@ -78,7 +79,7 @@
             </div>
 
             <div class="form-group">
-                <input type="button" id="join" onclick="joinGame($('#nick').val()); return false;" class="btn btn-block btn-primary" value="Play"/>
+                <input type="button" id="join" onclick="game.snake.join($('#nick').val()); return false;" class="btn btn-block btn-primary" value="Play"/>
             </div>
             <script type="text/javascript">
                 servers.getNames().forEach((item) => {
@@ -87,7 +88,7 @@
                 $(function() {
                     const updateServer = () => {
                         const selected = $(this).find("option:selected").index();
-                        changeServer(servers.getServer(selected));
+                        game.snake.connectTo(servers.getServer(selected));
                     };
                     $('.form-control').on('change', updateServer);
                 });

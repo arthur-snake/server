@@ -1,356 +1,260 @@
 'use strict';
 
-//Features
-let displayAllStats = false;
+class SnakeDrawer {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+        this.requestAnimFrame = window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function (callback) {
+                window.setTimeout(callback, 1000 / 60);
+            };
 
-//Connection
-let server = servers.getServer(0);
-let connection = 0;
-let state = 'panel';
-let ws;
-let nick;
+        this.defaultColor = "#EEEEEE";
 
-//Constants
-const snakeColor = "#4B77BE";
-const defaultColor = "#EEEEEE";
+        //canvas.onmousedown = onMouseDown;
 
-//Map
-let rows;
-let columns;
-let map = [];
+        this.indent = 1;
+        this.xShift = 0;
+        this.yShift = 0;
+    }
 
-//Canvas
-let height;
-let width;
-let requestAnimFrame;
-let canvas;
-let ctx;
-
-let cellSize;
-let indent = 1;
-let textIndent;
-let xShift = 0;
-let yShift = 0;
-
-const resizeAll = () => {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    cellSize = Math.min(Math.floor((width + indent) / columns - indent), Math.floor((height + indent) / rows - indent));
-    const heightField = rows * (cellSize + indent);
-    const widthField = columns * (cellSize + indent);
-    //console.log(heightField + " " + widthField);
-    //console.log(height + " " + width);
-    xShift = Math.floor((width - widthField) / 2);
-    yShift = Math.floor((height - heightField) / 2);
-    textIndent = cellSize / 1.2;
-    drawFrame();
-};
-
-
-//server messages
-const reconnect = () => {
-    connection = 0;
-    showPanel();
-    clearField();
-
-    console.log("trying to connect to " + server);
-    ws = new WebSocket(server);
-    ws.onmessage = messageReceived;
-    ws.onclose = () => {
-        console.log("connection closed");
-        reconnect();
+    resizeAll(rows, columns) {
+        this.width = this.canvas.width = window.innerWidth;
+        this.height = this.canvas.height = window.innerHeight;
+        this.cellSize = Math.min(Math.floor((this.width + this.indent) / columns - this.indent), Math.floor((this.height + this.indent) / rows - this.indent));
+        const heightField = rows * (this.cellSize + this.indent);
+        const widthField = columns * (this.cellSize + this.indent);
+        //console.log(heightField + " " + widthField);
+        //console.log(height + " " + width);
+        this.xShift = Math.floor((this.width - widthField) / 2);
+        this.yShift = Math.floor((this.height - heightField) / 2);
+        this.textIndent = this.cellSize / 1.2;
     };
-    ws.onopen = () => {
-        connection = 1;
-        console.log("connection established");
-    }
-};
 
-const parseCellInfo = (info) => {
-    const obj = {};
-    const pos1 = info.indexOf('.');
-    const pos2 = info.indexOf('#');
-    let pos3 = info.indexOf('*');
-    if (pos3 != -1) {
-        obj.points = parseInt(info.slice(pos3 + 1));
-    } else {
-        pos3 = info.length;
-    }
-    obj.x = parseInt(info.slice(0, pos1)); //server.y
-    obj.y = parseInt(info.slice(pos1 + 1, pos2)); //server.x
-    obj.id = info.slice(pos2 + 1, pos3);
-    obj.info = ids[obj.id];
-    obj.color = obj.info.color;
-    return obj;
-};
+    drawFrame(map) {
+        this.ctx.fillStyle = this.defaultColor;
+        this.ctx.fillRect(0, 0, this.width, this.height);
+        for (let i = 0; i < map.rows; i++) {
+            for (let j = 0; j < map.columns; j++) {
+                const {color, points} = map.map[i][j];
 
-const messageReceived = (e) => {
-    const msg = JSON.parse(e.data);
-    //console.log(msg);
-    if (msg.act == "init") {
-        let {rows, columns} = msg;
-        console.log(`Server map size: ${rows} ${columns}`);
-        initMap(rows, columns);
-        drawFrame()
-    }
-    updateIds(msg.u);
-    const sarr = msg.a;
-    if (typeof sarr === "undefined") return;
-    const arr = sarr.split("|");
-    const events = [];
-    for (let i = 0; i < arr.length; i++) {
-        events.push(parseCellInfo(arr[i]));
-    }
-    changeMap(events);
-};
-
-
-//panel
-const showPanel = () => {
-    if (state === 'panel')
-        return;
-    state = 'panel';
-    $('#overlays').css({"display": "block", "opacity": 0});
-    panelOpacity = 0;
-    if (connection == 1) ws.send(JSON.stringify({act: "leave"}));
-    showingPanel();
-};
-
-let panelOpacity = 0;
-
-const showingPanel = () => {
-    //console.log("showing " + panelOpacity);
-    panelOpacity += 0.02;
-    $("#overlays").css("opacity", panelOpacity);
-    if (panelOpacity < 1) setTimeout(showingPanel, 0.5);
-};
-
-const showGame = () => {
-    if (state === 'game' || connection != 1)return;
-    state = 'game';
-    $("#overlays").css("display", "none");
-    ws.send(JSON.stringify({act: "join", "nick": nick}));
-};
-
-
-//map
-const clearField = () => {
-    initMap(0, 0);
-    drawFrame();
-};
-
-const initMap = (r, c) => {
-    rows = r;
-    columns = c;
-    for (let i = 0; i < rows; i++) {
-        map[i] = [];
-        for (let j = 0; j < columns; j++) {
-            map[i][j] = {color: "white"};
-        }
-    }
-    resizeAll();
-};
-
-//keys
-const handleKeypress = (e) => {
-    const code = e.keyCode;
-    //console.log("Key: " + code);
-    if (state == 'game') {
-        if (code >= 37 && code <= 40) { //Arrows
-            switch (code) {
-                case 37:
-                    changeDirection("LEFT");
-                    break;
-                case 38:
-                    changeDirection("UP");
-                    break;
-                case 39:
-                    changeDirection("RIGHT");
-                    break;
-                case 40:
-                    changeDirection("DOWN");
-                    break;
-            }
-        }
-        if (code == 27) { //Escape
-            showPanel();
-        }
-    }
-    if (state == 'panel') {
-        if (code == 13) //Enter
-            joinGame($('#nick').val());
-    }
-};
-
-const onKeyDown = (e) => {
-    const evt = e || event;
-    handleKeypress(evt);
-};
-
-const changeDirection = (dir) => {
-    if (state !== 'game') return;
-    //console.log("New Direction: " + dir);
-    ws.send(JSON.stringify({act: "turn", "dir": dir}));
-};
-
-
-//canvas
-const drawFrame = () => {
-    ctx.fillStyle = defaultColor;
-    ctx.fillRect(0, 0, width, height);
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < columns; j++) {
-            ctx.fillStyle = map[i][j].color;
-            ctx.fillRect(xShift + j * (cellSize + indent), yShift + i * (cellSize + indent), cellSize, cellSize);
-            if (typeof map[i][j].points !== "undefined") {
-                ctx.fillStyle = "black";
-                ctx.font = "bold " + Math.max(0, cellSize - 2) + "px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText(map[i][j].points + "", xShift + j * (cellSize + indent) + cellSize / 2, yShift + i * (cellSize + indent) + textIndent);
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(
+                    this.xShift + j * (this.cellSize + this.indent),
+                    this.yShift + i * (this.cellSize + this.indent),
+                    this.cellSize,
+                    this.cellSize
+                );
+                if (typeof points !== "undefined") {
+                    this.ctx.fillStyle = "black";
+                    this.ctx.font = "bold " + Math.max(0, this.cellSize - 2) + "px Arial";
+                    this.ctx.textAlign = "center";
+                    this.ctx.fillText(
+                        points + "",
+                        this.xShift + j * (this.cellSize + this.indent) + this.cellSize / 2,
+                        this.yShift + i * (this.cellSize + this.indent) + this.textIndent
+                    );
+                }
             }
         }
     }
-    updateStats();
-};
 
-const initCanvas = () => {
-    canvas = document.getElementById("canvas");
-    ctx = canvas.getContext("2d");
-    requestAnimFrame = window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame ||
-        window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function (callback) {
-            window.setTimeout(callback, 1000 / 60);
+    drawUpdate(x, y, event) {
+        this.ctx.fillStyle = event.color;
+        this.ctx.fillRect(
+            this.xShift + x * (this.cellSize + this.indent),
+            this.yShift + y * (this.cellSize + this.indent),
+            this.cellSize,
+            this.cellSize
+        );
+        if (typeof event.points !== "undefined") {
+            this.ctx.fillStyle = 'black';
+            this.ctx.font = 'bold ' + Math.max(0, this.cellSize - 2) + 'px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(
+                event.points + "",
+                this.xShift + x * (this.cellSize + this.indent) + this.cellSize / 2,
+                this.yShift + y * (this.cellSize + this.indent) + this.textIndent
+            );
+        }
+    }
+}
+
+class SnakeGame {
+    constructor(snake, drawer) {
+        this.drawer = drawer;
+        this.snake = snake;
+        this.state = 0;
+
+        const showPanel = () => {
+            if (this.state == 0) return;
+            this.state = 0;
+            $('#overlays').css({"display": "block", "opacity": 1});
         };
 
-    canvas.onmousedown = onMouseDown
-};
+        /*            if (state === 'panel')
+         return;
+         state = 'panel';
+         $('#overlays').css({"display": "block", "opacity": 0});
+         panelOpacity = 0;
+         if (connection == 1) ws.send(JSON.stringify({act: "leave"}));
+         showingPanel();*/
 
-const changeMap = (events) => {
-    for (let i = 0; i < events.length; i++) {
-        map[events[i].y][events[i].x] = events[i];
-        ctx.fillStyle = events[i].color;
-        ctx.fillRect(xShift + events[i].x * (cellSize + indent), yShift + events[i].y * (cellSize + indent), cellSize, cellSize);
-        if (typeof events[i].points !== "undefined") {
-            ctx.fillStyle = 'black';
-            ctx.font = 'bold ' + Math.max(0, cellSize - 2) + 'px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(events[i].points + "", xShift + events[i].x * (cellSize + indent) + cellSize / 2, yShift + events[i].y * (cellSize + indent) + textIndent);
+        /*let panelOpacity = 0;
+
+        const showingPanel = () => {
+            //console.log("showing " + panelOpacity);
+            panelOpacity += 0.02;
+            $("#overlays").css("opacity", panelOpacity);
+            if (panelOpacity < 1) setTimeout(showingPanel, 0.5);
+        };*/
+
+        const hidePanel = () => {
+            if (this.state == 1 || this.snake.connection != 1) return;
+            this.state = 1;
+            $("#overlays").css("display", "none");
+        };
+
+        const redraw = () => {
+            const map = this.snake.map;
+            this.drawer.resizeAll(map.rows, map.columns);
+            this.drawer.drawFrame(map);
+        };
+
+        snake.on("leave", showPanel);
+        snake.on("join", hidePanel);
+        snake.on("ws.close", showPanel);
+        snake.on("init", redraw);
+        snake.on("cell.update", (x, y, upd) => {
+            this.drawer.drawUpdate(x, y, upd);
+        });
+
+        document.body.onresize = redraw;
+
+        document.onkeydown = (e) => {
+            e = e || event;
+            const code = e.keyCode;
+            //console.log("Key: " + code);
+            if (this.state == 1) {
+                if (code >= 37 && code <= 40) { //Arrows
+                    let dir;
+                    switch (code) {
+                        case 37:
+                            dir = "LEFT";
+                            break;
+                        case 38:
+                            dir = "UP";
+                            break;
+                        case 39:
+                            dir = "RIGHT";
+                            break;
+                        case 40:
+                            dir = "DOWN";
+                            break;
+                    }
+                    this.snake.go(dir);
+                }
+                if (code == 27) { //Escape
+                    this.snake.leave();
+                }
+            }
+            if (this.state == 0) {
+                if (code == 13) { //Enter
+                    this.snake.join($('#nick').val());
+                }
+            }
         }
     }
-    updateStats();
-};
+}
 
+class SnakeStats{
+    constructor(snake, container) {
+        this.stats = {};
+        this.container = container;
 
-//stats
-const updateStats = () => {
-    const stats = {};
-    const infos = {};
-    for (let i = 0; i < map.length; i++) {
-        for (let j = 0; j < map[i].length; j++) {
-            const c = map[i][j];
-            const info = c.info;
-            if (typeof info === "undefined") continue;
-            if (!displayAllStats && (info.type == "free" || info.type == "food" || info.type == "block")) continue;
-            if (typeof stats[info.id] === "undefined") stats[info.id] = 0;
-            stats[info.id]++;
-            infos[info.id] = info;
-        }
+        this.maxTop = 10;
+        this.displayPlayers = true;
+        this.displayEmpty = false;
+        this.displayBlocks = false;
+        this.displayFood = false;
+        this.minUpdate = 0;
+        this.lastUpdate = -1;
+
+        snake.on("init", () => {
+            this.stats = {};
+        });
+        snake.on("cell.update", (x, y, cur, old) => {
+            old = this.get(old);
+            cur = this.get(cur);
+            if (typeof old !== "undefined") old.count--;
+            if (typeof cur !== "undefined") cur.count++;
+        });
+        snake.on("map.update", () => {
+            const millis = new Date().getTime();
+            if (millis < this.lastUpdate + this.minUpdate) return;
+            this.lastUpdate = millis;
+
+            const arr = [];
+            for (let prop in this.stats) {
+                arr.push(this.stats[prop]);
+            }
+            arr.sort((a, b) => {
+                if (a.count > b.count) return -1;
+                if (a.count < b.count) return 1;
+                if (a.info.color > b.info.color) return 1;
+                if (a.info.color < b.info.color) return -1;
+                if (a.info.id > b.info.id) return 1;
+                if (a.info.id < b.info.id) return -1;
+                return 0;
+             });
+            const els = [];
+            let pos = 1;
+            for (let j = 0; j < arr.length && pos <= this.maxTop; j++) {
+                let name;
+                const i = arr[j];
+                if (i.count == 0) continue;
+                if (i.info.type == "player") {
+                    if (!this.displayPlayers) continue;
+                    name = i.info.nick;
+                } else if (i.info.type == "food") {
+                    if (!this.displayFood) continue;
+                    name = "Food";
+                } else if (i.info.type == "free") {
+                    if (!this.displayEmpty) continue;
+                    name = "Empty";
+                } else if (i.info.type == "block") {
+                    if (!this.displayBlocks) continue;
+                    name = "Block";
+                }
+                let s = pos + ". " + name + " " + i.count;
+                pos++;
+                els.push($(document.createElement("p")).addClass("top-element")
+                    .append($(document.createElement("span")).addClass("color-preview").css("background-color", i.info.color))
+                    .append($(document.createElement("span")).text(s)));
+            }
+
+            this.container.empty();
+            this.container.append(...els);
+        });
     }
-    const arr = [];
-    for (let prop in stats) {
-        arr.push({id: prop, count: stats[prop], info: infos[prop]});
+
+    get(info) {
+        if (typeof info === "undefined" || typeof info.id === "undefined") return undefined;
+        const id = info.id;
+        if (typeof this.stats[id] === "undefined") this.stats[id] = {count: 0, info: info.info};
+        return this.stats[id];
     }
-    arr.sort((a, b) => {
-        if (a.count > b.count) return -1;
-        if (a.count == b.count) return 0;
-        return 1;
-    });
-    const h = $("#top-list");
-    const els = [];
-    let pos = 1;
-    for (let j = 0; j < arr.length; j++) {
-        let name;
-        const i = arr[j];
-        if (i.info.type == "player") name = i.info.nick;
-        else if (i.info.type == "food") name = "Food";
-        else if (i.info.type == "free") name = "Empty";
-        else if (i.info.type == "block") name = "Block";
-        let s = pos + ". " + name + " " + i.count;
-        pos++;
-        els.push($(document.createElement("p")).addClass("top-element")
-            .append($(document.createElement("span")).addClass("color-preview").css("background-color", i.info.color))
-            .append($(document.createElement("span")).text(s)));
-    }
-    h.empty();
-    h.append(...els);
-};
+}
 
+let game;
+let stats;
 
-//mouse
-const onMouseDown = (e) => {
-    const event = e || window.event;
-    let mouseX, mouseY;
-    if (document.attachEvent != null) {
-        mouseX = window.event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-        mouseY = window.event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-    } else {
-        mouseX = event.clientX + window.scrollX;
-        mouseY = event.clientY + window.scrollY;
-    }
-
-    //mouseX -= nx;
-    //mouseY -= ny;
-
-    const x = mouseX / width;
-    const y = mouseY / height;
-    //console.log(mouseX + ":" + mouseY);
-    //if (x + y <= 1) {
-    //	if (x > y) changeDirection(1);
-    //	else changeDirection(0);
-    //} else {
-    //	x = 1 - x;
-    //	y = 1 - y;
-    //	if (x > y) changeDirection(3);
-    //	else changeDirection(2);
-    //}
-};
-
-//Ids
-const ids = {};
-
-const updateIds = (arr) => {
-    if (typeof arr === "undefined") return;
-    for (let i = 0; i < arr.length; i++) {
-        const ii = arr[i];
-        ids[ii.id] = ii
-    }
-};
-
-
-//ui
-const joinGame = (nickname) => {
-    nick = nickname;
-    console.log("join: " + nickname);
-    showGame();
-};
-
-const changeServer = (newServer) => {
-    if (!newServer) return;
-    server = newServer;
-    ws.close();
-};
-
-
-//init
-const init = () => {
-    document.onkeydown = onKeyDown;
-    initCanvas();
-    initMap(0, 0);
-    document.body.onresize = resizeAll;
-    reconnect();
-};
-
-window.addEventListener("load", init, false);
+$(document).ready(() => {
+    game = new SnakeGame(new Snake(), new SnakeDrawer(document.getElementById("canvas")));
+    game.snake.connectTo(servers.getServer(0));
+    stats = new SnakeStats(game.snake, $("#top-list"));
+});
