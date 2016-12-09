@@ -235,11 +235,69 @@ class SnakeStats{
     }
 }
 
+class SnakeTouch {
+    constructor(snake, element) {
+        $.event.special.tap.tapholdThreshold = 1500;
+
+        this.snake = snake;
+        this.element = element;
+
+        $(element).on("taphold", () => {
+            console.log("taphold event");
+            this.snake.leave();
+        });
+
+        let x, y;
+        let nx, ny;
+
+        $(element).on("touchstart", (e) => {
+            nx = x = e.touches[0].clientX;
+            ny = y = e.touches[0].clientY;
+        });
+
+        $(element).on("touchmove", (e) => {
+            nx = e.touches[0].clientX;
+            ny = e.touches[0].clientY;
+        });
+
+        $(element).on("touchend", (e) => {
+            if (nx == x && ny == y) return;
+            const dx = nx - x;
+            const dy = ny - y;
+            let f1, f2;
+            if (dx > dy) f1 = 1; else f1 = 0;
+            if (-dx < dy) f2 = 1; else f2 = 0;
+            const f = f1 * 2 + f2;
+            let dir;
+            switch (f) {
+                case 0:
+                    dir = "LEFT";
+                    break;
+                case 1:
+                    dir = "DOWN";
+                    break;
+                case 2:
+                    dir = "UP";
+                    break;
+                case 3:
+                    dir = "RIGHT";
+                    break;
+            }
+            this.snake.go(dir);
+        });
+    }
+}
+
+
 let game;
 let stats;
+let touch;
+
+const snake = new Snake();
 
 $(document).ready(() => {
-    game = new SnakeGame(new Snake(), new SnakeDrawer(document.getElementById("canvas")));
-    game.snake.connectTo(servers.getServer(0));
-    stats = new SnakeStats(game.snake, $("#top-list"));
+    game = new SnakeGame(snake, new SnakeDrawer(document.getElementById("canvas")));
+    snake.connectTo(servers.getServer(0));
+    stats = new SnakeStats(snake, $("#top-list"));
+    touch = new SnakeTouch(snake, document.getElementById("canvas"));
 });
