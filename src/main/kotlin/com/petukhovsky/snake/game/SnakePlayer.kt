@@ -57,7 +57,7 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
         if (inGame) return false
         synchronized(game) {
             val point = game.raf.get() ?: return false
-            this.nickname = nick
+            if (nick.isNotBlank()) this.nickname = nick
             stock = 2
             inGame = true
             game.players.add(this)
@@ -76,7 +76,7 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
 
     fun moveFront() {
         assert(inGame == true)
-        val cell = game[game.config.size.move(cells.last.x, cells.last.y, controller.direction())]
+        val cell = game[game.config.size.move(cells.last.y, cells.last.x, controller.direction())]
         if (!cell.availableToJoin()) return
         if (cell.obj is FoodObject) stock += (cell.obj as FoodObject).food
         cell.set(obj!!)

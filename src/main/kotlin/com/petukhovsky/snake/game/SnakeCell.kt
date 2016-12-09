@@ -6,7 +6,7 @@ import com.petukhovsky.snake.game.obj.IdObject
 import com.petukhovsky.snake.util.Color
 import kotlin.properties.Delegates
 
-class SnakeCell(val x: Int, val y: Int, val game: Game) {
+class SnakeCell(val y: Int, val x: Int, val game: Game) {
 
     var obj: IdObject = game.obj.free
 
@@ -22,10 +22,10 @@ class SnakeCell(val x: Int, val y: Int, val game: Game) {
         return obj is FreeObject || obj is FoodObject
     }
 
-    fun toMessage() = "$y.$x#${obj.id}" + if (obj is FoodObject) "*${(obj as FoodObject).food}" else ""
+    fun toMessage() = "$x.$y#${obj.id}" + if (obj is FoodObject) "*${(obj as FoodObject).food}" else ""
 
     fun set(obj: IdObject) {
-        game.raf[x, y] = obj !is FreeObject
+        game.raf[y, x] = obj !is FreeObject
         this.obj = obj
         food = (obj as? FoodObject)?.food ?: 0
         notifyGame()

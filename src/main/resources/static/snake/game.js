@@ -114,7 +114,7 @@ class SnakeGame {
         };*/
 
         const hidePanel = () => {
-            if (this.state == 1 || this.snake.connection != 1) return;
+            if (this.state == 1) return;
             this.state = 1;
             $("#overlays").css("display", "none");
         };
