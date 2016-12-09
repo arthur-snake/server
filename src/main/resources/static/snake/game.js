@@ -246,6 +246,7 @@ class SnakeStats{
         if (typeof info === "undefined" || typeof info.id === "undefined") return undefined;
         const id = info.id;
         if (typeof this.stats[id] === "undefined") this.stats[id] = {count: 0, info: info.info};
+        else this.stats[id].info = info.info;
         return this.stats[id];
     }
 }
