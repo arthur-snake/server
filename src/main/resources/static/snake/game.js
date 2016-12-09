@@ -93,25 +93,9 @@ class SnakeGame {
         const showPanel = () => {
             if (this.state == 0) return;
             this.state = 0;
-            $('#overlays').css({"display": "block", "opacity": 1});
+            const over = $("#overlays");
+            over.fadeIn(600);
         };
-
-        /*            if (state === 'panel')
-         return;
-         state = 'panel';
-         $('#overlays').css({"display": "block", "opacity": 0});
-         panelOpacity = 0;
-         if (connection == 1) ws.send(JSON.stringify({act: "leave"}));
-         showingPanel();*/
-
-        /*let panelOpacity = 0;
-
-        const showingPanel = () => {
-            //console.log("showing " + panelOpacity);
-            panelOpacity += 0.02;
-            $("#overlays").css("opacity", panelOpacity);
-            if (panelOpacity < 1) setTimeout(showingPanel, 0.5);
-        };*/
 
         const hidePanel = () => {
             if (this.state == 1) return;
