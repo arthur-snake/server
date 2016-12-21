@@ -47,8 +47,21 @@
             opacity: 0.5;
             padding: 17px;
         }
+        #bottom-chat {
+            z-index: 0;
+            position: absolute;
+            left: 30px;
+            bottom: 30px;
+            opacity: 0.5;
+            padding: 17px;
+        }
+        .chat-msg {
+            font-size: 20px;
+            color: black;
+            margin-bottom: 0;
+        }
         .top-element {
-            font-size: 30px;
+            font-size: 24px;
             color: white;
             margin-bottom: 0;
         }
@@ -113,6 +126,7 @@
 
 <canvas id="canvas" width="800" height="600"></canvas>
 <div id="top-list"></div>
+<div id="bottom-chat"></div>
 <script src="../static/snake/game.js" th:src="@{/snake/game.js}"></script>
 
 </body>

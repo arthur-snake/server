@@ -25,9 +25,11 @@ class Game(val config: SnakeConfig) {
     val map = Array(rows) { i -> Array(columns) { j -> SnakeCell(i, j, this) } }
     val players = mutableSetOf<SnakePlayer>()
 
+    val chat = GameChat()
+
     val builder = MessageBuilder(this)
 
-    private val server = GameServer(this).apply { start() }
+    val server = GameServer(this).apply { start() }
 
     operator fun get(point: Pair<Int, Int>) = map[point.first][point.second]
 

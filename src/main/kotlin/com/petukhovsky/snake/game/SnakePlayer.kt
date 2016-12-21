@@ -4,6 +4,7 @@ import com.petukhovsky.snake.game.obj.FoodObject
 import com.petukhovsky.snake.game.obj.IdObject
 import com.petukhovsky.snake.game.obj.PlayerObject
 import com.petukhovsky.snake.info.AnyMoment
+import com.petukhovsky.snake.prot.ChatUpdate
 import com.petukhovsky.snake.util.Direction
 import com.petukhovsky.snake.util.getRandomColor
 import java.util.*
@@ -42,8 +43,8 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
 
     @AnyMoment
     fun leave() {
-        if (!inGame) return
         synchronized(game) {
+            if (!inGame) return
             game.players.remove(this)
             inGame = false
             cells.forEach { it.set(game.obj.free) }
@@ -54,8 +55,8 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
 
     @AnyMoment
     fun join(nick: String): Boolean {
-        if (inGame) return false
         synchronized(game) {
+            if (inGame) return false
             val point = game.raf.get() ?: return false
             if (nick.isNotBlank()) this.nickname = nick
             stock = 2
@@ -91,6 +92,14 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
             return
         }
         if (size > MIN_SIZE) cells.remove().set(game.obj.free)
+    }
+
+    @AnyMoment
+    fun chatMessage(msg: String) {
+        synchronized(game) {
+            if (!inGame) return
+            game.chat.updates.add(ChatUpdate(obj?.id ?: throw Exception("Object is null"), msg))
+        }
     }
 }
 

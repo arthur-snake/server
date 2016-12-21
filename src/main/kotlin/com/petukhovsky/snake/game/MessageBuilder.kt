@@ -7,7 +7,8 @@ class MessageBuilder(val game: Game) {
     fun buildMessage(): ServerMessage =
             UpdMessage(
                     game.changedCells.map { it.toMessage() }.joinToString("|"),
-                    game.obj.cur.values.map { it.toInfo() }.toTypedArray()
+                    game.obj.cur.values.map { it.toInfo() }.toTypedArray(),
+                    game.chat.updates.toTypedArray()
             )
 
 }

@@ -288,10 +288,91 @@ class SnakeTouch {
     }
 }
 
+class SnakeChat {
+
+    constructor(snake, game, element, container) {
+        const keyCodes = {
+            32 : " ",
+            48 : "0",
+            49 : "1",
+            50 : "2",
+            51 : "3",
+            52 : "4",
+            53 : "5",
+            54 : "6",
+            55 : "7",
+            56 : "8",
+            57 : "9",
+            58 : ":",
+            60 : "<",
+            65 : "a",
+            66 : "b",
+            67 : "c",
+            68 : "d",
+            69 : "e",
+            70 : "f",
+            71 : "g",
+            72 : "h",
+            73 : "i",
+            74 : "j",
+            75 : "k",
+            76 : "l",
+            77 : "m",
+            78 : "n",
+            79 : "o",
+            80 : "p",
+            81 : "q",
+            82 : "r",
+            83 : "s",
+            84 : "t",
+            85 : "u",
+            86 : "v",
+            87 : "w",
+            88 : "x",
+            89 : "y",
+            90 : "z"
+        };
+
+        this.snake = snake;
+        this.game = game;
+        this.container = container;
+
+        this.msg = "";
+
+        $(element).on("keydown", (e) => {
+            if (this.game.state != 1) return;
+            e = e || event;
+            const code = e.keyCode;
+            //console.log("Key: " + code);
+            if (code == 13) {
+                snake.sendChat(this.msg);
+                this.msg = "";
+                return;
+            }
+            if (typeof keyCodes[code] !== "undefined") this.msg += keyCodes[code];
+        });
+
+        snake.on("new.chat", (msg) => {
+            const data = msg.msg;
+            const id = msg.id;
+            const obj = this.snake.ids.get(id);
+            const nick = obj.nick;
+            const text = nick + ": " + data;
+            const element = $(document.createElement("p")).addClass("chat-msg")
+               // .append($(document.createElement("span")).addClass("color-preview").css("background-color", i.info.color))
+                .append($(document.createElement("span")).text(text));
+            this.container.append(element);
+            setTimeout(() => element.remove(), 3000);
+        })
+    }
+
+}
+
 
 let game;
 let stats;
 let touch;
+let chat;
 
 const snake = new Snake();
 
@@ -300,4 +381,5 @@ $(document).ready(() => {
     snake.connectTo(servers.getServer(0));
     stats = new SnakeStats(snake, $("#top-list"));
     touch = new SnakeTouch(snake, document.getElementById("canvas"));
+    chat = new SnakeChat(snake, game, document, $("#bottom-chat"));
 });

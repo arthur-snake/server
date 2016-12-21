@@ -13,7 +13,8 @@ open class ServerMessage
 
 open class UpdMessage(
         @JsonInclude(JsonInclude.Include.NON_EMPTY) val a : String,
-        @JsonInclude(JsonInclude.Include.NON_EMPTY) val u : Array<IdInfo>
+        @JsonInclude(JsonInclude.Include.NON_EMPTY) val u : Array<IdInfo>,
+        @JsonInclude(JsonInclude.Include.NON_EMPTY) val c : Array<ChatUpdate> = arrayOf()
 ) : ServerMessage()
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -30,3 +31,8 @@ class InitMessage(
         val rows: Int,
         val columns: Int
 ) : UpdMessage(a, u)
+
+data class ChatUpdate(
+        val id: String,
+        val msg: String
+)

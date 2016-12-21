@@ -68,6 +68,7 @@ class Snake {
     constructor() {
         Emitter.call(this);
         this.running = false;
+        this.logMessages = false;
 
         this.ids = new Ids(this);
         this.map = new SnakeMap(this, 0, 0);
@@ -138,6 +139,8 @@ class Snake {
             return obj;
         };
 
+	    if (this.logMessages == true) console.log(msg);
+
         if (msg.act == "init") {
             let {rows, columns} = msg;
             console.log(`Server map size: ${rows} ${columns}`);
@@ -148,6 +151,12 @@ class Snake {
             this.emit("init");
         }
         this.ids.update(msg.u);
+
+        if (typeof msg.c !== "undefined") {
+            for (let i = 0; i < msg.c.length; i++) {
+                this.emit("new.chat", msg.c[i]);
+            }
+        }
 
         const sarr = msg.a;
         if (typeof sarr !== "undefined") {
@@ -180,6 +189,12 @@ class Snake {
         if (typeof this.ws === "undefined") return;
         this.ws.send(JSON.stringify({act: "turn", "dir": dir}));
         this.emit("go", dir);
+    }
+
+    sendChat(msg) {
+        if (typeof this.ws === "undefined") return;
+        this.ws.send(JSON.stringify({act: "chat", msg: msg}));
+        this.emit("send.chat", msg);
     }
 }
 

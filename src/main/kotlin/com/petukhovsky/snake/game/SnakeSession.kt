@@ -19,9 +19,7 @@ abstract class SnakeSession(game: Game): Closeable {
             is JoinMessage -> player.join(msg.nick)
             is LeaveMessage -> player.leave()
             is TurnMessage -> player.changeDirection(msg.dir)
-            is ChatMessage -> {
-                //TODO
-            }
+            is ChatMessage -> player.chatMessage(msg.msg)
         }
     }
 

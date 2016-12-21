@@ -43,6 +43,7 @@ class GameServer(val game: Game) {
             game.initHelper.clear()
             game.obj.cur.clear()
             game.changedCells.clear()
+            game.chat.updates.clear()
 
             game.subs.broadcast(objectMapper.writeValueAsString(message))
         }
