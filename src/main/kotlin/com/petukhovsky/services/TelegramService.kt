@@ -1,9 +1,13 @@
 package com.petukhovsky.services
 
+import com.pengrad.telegrambot.Callback
 import com.pengrad.telegrambot.TelegramBotAdapter
 import com.pengrad.telegrambot.request.SendMessage
+import com.pengrad.telegrambot.response.BaseResponse
+import com.pengrad.telegrambot.response.SendResponse
 import com.petukhovsky.services.MessageAdapter
 import org.springframework.stereotype.Service
+import java.io.IOException
 import java.nio.file.Paths
 
 @Service
@@ -18,7 +22,15 @@ class TelegramService {
     }
 
     fun send(id: String, msg: String) {
-        getChatIdsById(id)?.forEach { bot.execute(SendMessage(it, msg)) }
+        getChatIdsById(id)?.forEach {
+            bot.execute(SendMessage(it, msg), object : Callback<SendMessage, SendResponse> {
+                override fun onFailure(request: SendMessage?, e: IOException?) {
+                }
+
+                override fun onResponse(request: SendMessage?, response: SendResponse?) {
+                }
+            })
+        }
     }
 
     fun getAdapter(id: String): MessageAdapter {
@@ -29,7 +41,6 @@ class TelegramService {
         }
     }
 }
-
 
 data class TelegramConfig(
         val token: String = "",

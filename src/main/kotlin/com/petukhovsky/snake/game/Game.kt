@@ -8,7 +8,7 @@ import com.petukhovsky.snake.util.SubService
 import com.petukhovsky.snake.util.RandomAccessField
 import java.util.*
 
-val VERSION = "v1.0"
+val VERSION = "v1.0.1"
 
 class Game(
         val config: SnakeConfig,
