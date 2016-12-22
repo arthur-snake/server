@@ -242,28 +242,24 @@ class SnakeTouch {
         this.snake = snake;
         this.element = element;
 
+        this.swipeOn = true;
+
         $(element).on("taphold", () => {
             console.log("taphold event");
             this.snake.leave();
         });
 
+        const checkbox = $("#swipe-checkbox");
+
+        checkbox.on("change", () => {
+            this.swipeOn = checkbox.is(":checked");
+        });
+
         let x, y;
         let nx, ny;
 
-        $(element).on("touchstart", (e) => {
-            nx = x = e.touches[0].clientX;
-            ny = y = e.touches[0].clientY;
-        });
-
-        $(element).on("touchmove", (e) => {
-            nx = e.touches[0].clientX;
-            ny = e.touches[0].clientY;
-        });
-
-        $(element).on("touchend", (e) => {
-            if (nx == x && ny == y) return;
-            const dx = nx - x;
-            const dy = ny - y;
+        const go = (dx, dy) => {
+            if (dx == 0 && dy == 0) return;
             let f1, f2;
             if (dx > dy) f1 = 1; else f1 = 0;
             if (-dx < dy) f2 = 1; else f2 = 0;
@@ -284,6 +280,53 @@ class SnakeTouch {
                     break;
             }
             this.snake.go(dir);
+        };
+
+        const goByXY = (x, y) => {
+            let w = window.innerWidth
+                || document.documentElement.clientWidth
+                || document.body.clientWidth;
+            let h = window.innerHeight
+                || document.documentElement.clientHeight
+                || document.body.clientHeight;
+            go(x - (w / 2.0), y - (h / 2.0));
+        };
+
+        $("*").on("touchstart", (e) => {
+            //console.log("touch");
+
+            nx = x = e.touches[0].clientX;
+            ny = y = e.touches[0].clientY;
+
+            //console.log("start " + x + " " + y);
+
+            if (!this.swipeOn) {
+                goByXY(x, y);
+                return;
+            }
+        });
+
+        $("*").on("touchmove", (e) => {
+            nx = e.touches[0].clientX;
+            ny = e.touches[0].clientY;
+
+            if (!this.swipeOn) {
+                goByXY(x, y);
+                return;
+            }
+        });
+
+        $("*").on("touchend touchcancel", (e) => {
+            //console.log("touchnd " + x + " " + y + " | " + nx + " " + ny);
+
+            if (!this.swipeOn) {
+                goByXY(x, y);
+                return;
+            }
+
+            const dx = nx - x;
+            const dy = ny - y;
+            go(dx, dy);
         });
     }
 }
@@ -380,6 +423,6 @@ $(document).ready(() => {
     game = new SnakeGame(snake, new SnakeDrawer(document.getElementById("canvas")));
     snake.connectTo(servers.getServer(0));
     stats = new SnakeStats(snake, $("#top-list"));
-    touch = new SnakeTouch(snake, document.getElementById("canvas"));
+    touch = new SnakeTouch(snake, document);
     chat = new SnakeChat(snake, game, document, $("#bottom-chat"));
 });

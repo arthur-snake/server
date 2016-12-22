@@ -1,7 +1,7 @@
 package com.petukhovsky.snake.api
 
 import com.petukhovsky.services.objectMapper
-import com.petukhovsky.snake.domain.ConfigService
+import com.petukhovsky.snake.domain.SnakeConfigService
 import com.petukhovsky.snake.domain.SnakeConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -15,7 +15,7 @@ import javax.ws.rs.core.UriBuilder
 
 @Controller
 class SnakeController @Autowired constructor(
-        val config: ConfigService
+        val config: SnakeConfigService
 ) {
 
     @RequestMapping(value = "/snake")

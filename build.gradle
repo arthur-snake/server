@@ -43,13 +43,14 @@ idea {
 }
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     compile('org.springframework.boot:spring-boot-starter-jersey')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-websocket')
 
     compile("org.springframework.boot:spring-boot-devtools")
+
+    compile("com.github.pengrad:java-telegram-bot-api:2.3.1")
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.8.4'

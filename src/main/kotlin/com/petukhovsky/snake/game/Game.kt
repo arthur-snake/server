@@ -1,5 +1,6 @@
 package com.petukhovsky.snake.game
 
+import com.petukhovsky.services.TelegramService
 import com.petukhovsky.snake.domain.SnakeConfig
 import com.petukhovsky.snake.game.SnakeCell
 import com.petukhovsky.snake.game.obj.ObjectsManager
@@ -7,7 +8,12 @@ import com.petukhovsky.snake.util.SubService
 import com.petukhovsky.snake.util.RandomAccessField
 import java.util.*
 
-class Game(val config: SnakeConfig) {
+val VERSION = "v1.0"
+
+class Game(
+        val config: SnakeConfig,
+        val telegram: TelegramService
+) {
 
     val random = Random()
     val raf = RandomAccessField(config.size)

@@ -1,5 +1,6 @@
 package com.petukhovsky.snake.domain
 
+import com.petukhovsky.services.jsonDao
 import com.petukhovsky.services.readJSON
 import com.petukhovsky.services.writeJSON
 import com.petukhovsky.snake.util.Direction
@@ -29,26 +30,12 @@ data class SnakeConfig(
 }
 
 @Service
-open class ConfigService {
+open class SnakeConfigService {
 
-    val dir = Paths.get("/data/")
+    val dao = jsonDao<Array<SnakeConfig>>(Paths.get("/data/snake.servers.json"))
 
-    val snakeServers = dir.resolve("snake.servers.json")
-
-    var snakeConfigs: Array<SnakeConfig> = loadSnakeServers()
-
-    private fun loadSnakeServers(): Array<SnakeConfig> =
-            try {
-                readJSON<Array<SnakeConfig>>(snakeServers)
-            } catch (e: Exception) {
-                emptyArray()
-            }
+    var snakeConfigs: Array<SnakeConfig> = dao.read() ?: arrayOf()
 
     fun getConfigByName(name: String): SnakeConfig? = snakeConfigs.find { it.name == name }
-
-    fun saveSnakeServers(arr: Array<SnakeConfig>) {
-        snakeConfigs = arr
-        writeJSON(snakeServers, arr)
-    }
 }
 

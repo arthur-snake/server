@@ -22,3 +22,22 @@ fun writeJSON(path: Path, value: Any) {
         objectMapper.writeValue(it, value)
     }
 }
+
+class JsonDAO<T>(val path: Path, val c: Class<T>) {
+
+    fun exists() = Files.exists(path)
+
+    fun read(): T? {
+        if (!exists()) return null
+        Files.newInputStream(path).use {
+            return objectMapper.readValue(it, c)
+        }
+    }
+
+    fun save(value: T) {
+        Files.createDirectories(path.parent)
+        Files.newOutputStream(path).use { objectMapper.writeValue(it, value) }
+    }
+}
+
+inline fun <reified T : Any> jsonDao(path: Path) = JsonDAO(path, T::class.java)

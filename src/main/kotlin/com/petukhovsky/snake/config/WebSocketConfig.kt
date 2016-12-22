@@ -1,6 +1,6 @@
 package com.petukhovsky.snake.config
 
-import com.petukhovsky.snake.domain.ConfigService
+import com.petukhovsky.snake.domain.SnakeConfigService
 import com.petukhovsky.snake.domain.GamePool
 import com.petukhovsky.snake.ws.SnakeHandler
 import org.slf4j.LoggerFactory
@@ -13,7 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 open class WebSocketConfig @Autowired constructor(
-        val configService: ConfigService,
+        val configService: SnakeConfigService,
         val gamePool: GamePool
 ) : WebSocketConfigurer {
 

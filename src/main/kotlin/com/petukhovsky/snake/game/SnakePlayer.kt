@@ -10,6 +10,12 @@ import com.petukhovsky.snake.util.getRandomColor
 import java.util.*
 
 class SnakePlayer(val session: SnakeSession, val game: Game) {
+
+    val adapter = game.telegram.getAdapter("snake.player")
+    val logger = game.telegram.getAdapter("snake.player.logs")
+
+    var stats = PlayerStats(this)
+
     var color: String = getRandomColor(game.random)
     var inGame = false
     var controller = SnakeController()
@@ -38,6 +44,8 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
         synchronized(game) {
             leave()
             game.subs.leave(this)
+
+            logger.send("Player $nickname disconnected")
         }
     }
 
@@ -50,6 +58,9 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
             cells.forEach { it.set(game.obj.free) }
             game.obj.remove(obj!!)
             obj = null
+
+            stats.notifyLeave()
+            logger.send("Player $nickname left")
         }
     }
 
@@ -66,6 +77,9 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
             controller = SnakeController()
             obj = PlayerObject(game.obj.gen(), this).apply { game.obj.add(this) }
             cells = ArrayDeque(listOf(game[point].apply { set(obj) }))
+
+            this.stats = PlayerStats(this)
+            logger.send("Player $nickname joined")
         }
         return true
     }
@@ -79,7 +93,11 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
         assert(inGame == true)
         val cell = game[game.config.size.move(cells.last.y, cells.last.x, controller.direction())]
         if (!cell.availableToJoin()) return
-        if (cell.obj is FoodObject) stock += (cell.obj as FoodObject).food
+        if (cell.obj is FoodObject) {
+            val food = (cell.obj as FoodObject).food
+            stock += food
+            stats.notifyFood(food)
+        }
         cell.set(obj!!)
         controller.move()
         cells.add(cell)
@@ -87,18 +105,26 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
 
     fun moveBack() {
         assert(inGame == true)
-        if (stock > 0) {
-            stock--
-            return
+        try {
+            if (stock > 0) {
+                stock--
+                return
+            }
+            if (size > MIN_SIZE) cells.remove().set(game.obj.free)
+        } finally {
+            stats.notifyLength(size)
         }
-        if (size > MIN_SIZE) cells.remove().set(game.obj.free)
     }
 
     @AnyMoment
     fun chatMessage(msg: String) {
+        val message = msg.trim().take(60)
+
         synchronized(game) {
             if (!inGame) return
-            game.chat.updates.add(ChatUpdate(obj?.id ?: throw Exception("Object is null"), msg))
+            game.chat.updates.add(ChatUpdate(obj?.id ?: throw Exception("Object is null"), message))
+
+            logger.send("[CHAT] $nickname: $message")
         }
     }
 }
