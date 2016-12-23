@@ -93,7 +93,10 @@ class Snake {
     }
 
     reconnect() {
-        if (typeof this.ws !== "undefined") this.ws.close();
+        if (typeof this.ws !== "undefined") {
+            this.ws.onclose = undefined;
+            this.ws.close();
+        }
         if (!this.running) return false;
 
         this.emit("reconnect");

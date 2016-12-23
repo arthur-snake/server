@@ -13,3 +13,12 @@ abstract class MessageAdapter{
         return send(writer.toString())
     }
 }
+
+class PrefixAdapter(
+        val adapter: MessageAdapter,
+        val prefix: String
+) : MessageAdapter() {
+    override fun send(message: String) {
+        adapter.send(prefix + message)
+    }
+}

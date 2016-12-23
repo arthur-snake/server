@@ -2,6 +2,7 @@ package com.petukhovsky.snake.domain
 
 import com.petukhovsky.services.TelegramService
 import com.petukhovsky.snake.game.Game
+import com.petukhovsky.snake.game.UPDATE_NOTES
 import com.petukhovsky.snake.game.VERSION
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -14,7 +15,7 @@ open class GamePool @Autowired constructor(
 ) {
 
     init {
-        telegram.send("snake.game", "Server $VERSION is staring...")
+        telegram.send("snake.game", "Server $VERSION is staring...\nUpdate notes: $UPDATE_NOTES")
     }
 
     val map = mutableMapOf<String, Game>()

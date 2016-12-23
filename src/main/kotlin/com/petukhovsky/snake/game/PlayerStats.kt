@@ -24,6 +24,7 @@ class PlayerStats(
 
     fun notifyLeave() {
         if (totalFood < 500) return
-        println("Wow! Player ${player.nickname} left with great results(eaten=$totalFood, maxLength=$maxLength)")
+        player.adapter.send("Wow! Player ${player.nickname} left with great " +
+                "results(eaten=$totalFood, maxLength=$maxLength, length=$currentLength)")
     }
 }

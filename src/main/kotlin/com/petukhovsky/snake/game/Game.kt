@@ -8,7 +8,8 @@ import com.petukhovsky.snake.util.SubService
 import com.petukhovsky.snake.util.RandomAccessField
 import java.util.*
 
-val VERSION = "v1.0.1"
+val VERSION = "v1.0.2"
+val UPDATE_NOTES = "Chat anti-ddos\nMobile no swipe fix\nOther fixes"
 
 class Game(
         val config: SnakeConfig,

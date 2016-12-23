@@ -289,36 +289,26 @@ class SnakeTouch {
             let h = window.innerHeight
                 || document.documentElement.clientHeight
                 || document.body.clientHeight;
-            go(x - (w / 2.0), y - (h / 2.0));
+            go((x - (w / 2.0)) / w, (y - (h / 2.0)) / h);
         };
 
-        $("*").on("touchstart", (e) => {
-            //console.log("touch");
+        const all = $("*");
 
+        all.on("touchstart", (e) => {
             nx = x = e.touches[0].clientX;
             ny = y = e.touches[0].clientY;
 
-            //console.log("start " + x + " " + y);
-
-            if (!this.swipeOn) {
-                goByXY(x, y);
-                return;
-            }
+            if (!this.swipeOn) goByXY(x, y);
         });
 
-        $("*").on("touchmove", (e) => {
+        all.on("touchmove", (e) => {
             nx = e.touches[0].clientX;
             ny = e.touches[0].clientY;
 
-            if (!this.swipeOn) {
-                goByXY(x, y);
-                return;
-            }
+            if (!this.swipeOn) goByXY(x, y);
         });
 
-        $("*").on("touchend touchcancel", (e) => {
-            //console.log("touchnd " + x + " " + y + " | " + nx + " " + ny);
-
+        all.on("touchend touchcancel", (e) => {
             if (!this.swipeOn) {
                 goByXY(x, y);
                 return;
@@ -386,10 +376,13 @@ class SnakeChat {
             if (this.game.state != 1) return;
             e = e || event;
             const code = e.keyCode;
-            //console.log("Key: " + code);
             if (code == 13) {
                 snake.sendChat(this.msg);
                 this.msg = "";
+                return;
+            }
+            if (code == 8) {
+                if (this.msg.length > 0) this.msg.pop();
                 return;
             }
             if (typeof keyCodes[code] !== "undefined") this.msg += keyCodes[code];
@@ -402,10 +395,11 @@ class SnakeChat {
             const nick = obj.nick;
             const text = nick + ": " + data;
             const element = $(document.createElement("p")).addClass("chat-msg")
-               // .append($(document.createElement("span")).addClass("color-preview").css("background-color", i.info.color))
                 .append($(document.createElement("span")).text(text));
             this.container.append(element);
-            setTimeout(() => element.remove(), 3000);
+            element.fadeOut(6000, () => {
+                element.remove();
+            });
         })
     }
 

@@ -1,18 +1,20 @@
 package com.petukhovsky.snake.game
 
+import com.petukhovsky.services.PrefixAdapter
 import com.petukhovsky.snake.game.obj.FoodObject
 import com.petukhovsky.snake.game.obj.IdObject
 import com.petukhovsky.snake.game.obj.PlayerObject
 import com.petukhovsky.snake.info.AnyMoment
 import com.petukhovsky.snake.prot.ChatUpdate
 import com.petukhovsky.snake.util.Direction
+import com.petukhovsky.snake.util.LoadKeeper
 import com.petukhovsky.snake.util.getRandomColor
 import java.util.*
 
 class SnakePlayer(val session: SnakeSession, val game: Game) {
 
-    val adapter = game.telegram.getAdapter("snake.player")
-    val logger = game.telegram.getAdapter("snake.player.logs")
+    val adapter = PrefixAdapter(game.telegram.getAdapter("snake.player"), "[${game.config.name}]")
+    val logger = PrefixAdapter(game.telegram.getAdapter("snake.player.logs"), "[${game.config.name}]")
 
     var stats = PlayerStats(this)
 
@@ -116,12 +118,16 @@ class SnakePlayer(val session: SnakeSession, val game: Game) {
         }
     }
 
+    val chatLoad = LoadKeeper(10000.0, 0.4)
+
     @AnyMoment
     fun chatMessage(msg: String) {
         val message = msg.trim().take(60)
+        if (message.isEmpty()) return
 
         synchronized(game) {
             if (!inGame) return
+            if (chatLoad.calc() < 1500.0) return
             game.chat.updates.add(ChatUpdate(obj?.id ?: throw Exception("Object is null"), message))
 
             logger.send("[CHAT] $nickname: $message")
