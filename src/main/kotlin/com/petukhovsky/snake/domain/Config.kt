@@ -3,6 +3,7 @@ package com.petukhovsky.snake.domain
 import com.petukhovsky.services.jsonDao
 import com.petukhovsky.services.readJSON
 import com.petukhovsky.services.writeJSON
+import com.petukhovsky.snake.game.SnakeCell
 import com.petukhovsky.snake.util.Direction
 import org.springframework.stereotype.Service
 import java.nio.file.Paths
@@ -15,6 +16,11 @@ data class FieldSize(val height: Int, val width: Int) {
     fun move(x: Int, y: Int, direction: Direction): Pair<Int, Int> = fit(x + direction.x, y + direction.y)
 
     fun fit(x: Int, y: Int): Pair<Int, Int> = Pair(Math.floorMod(x, height), Math.floorMod(y, width))
+    fun calcNeighbours(y: Int, x: Int, map: Array<Array<SnakeCell>>): Int {
+        return Direction.values()
+                .map { move(y, x, it) }
+                .count { !map[it.first][it.second].availableToJoin() }
+    }
 }
 
 data class SnakeConfig(
