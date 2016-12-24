@@ -13,8 +13,8 @@ import java.util.*
 
 class SnakePlayer(val session: SnakeSession, val game: Game) {
 
-    val adapter = PrefixAdapter(game.telegram.getAdapter("snake.player"), "[${game.config.name}]")
-    val logger = PrefixAdapter(game.telegram.getAdapter("snake.player.logs"), "[${game.config.name}]")
+    val adapter = PrefixAdapter(game.telegram.getAdapter("snake.player"), "[${game.config.name}] ")
+    val logger = PrefixAdapter(game.telegram.getAdapter("snake.player.logs"), "[${game.config.name}] ")
 
     var stats = PlayerStats(this)
 

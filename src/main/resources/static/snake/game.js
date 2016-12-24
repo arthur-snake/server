@@ -382,7 +382,9 @@ class SnakeChat {
                 return;
             }
             if (code == 8) {
-                if (this.msg.length > 0) this.msg.pop();
+                if (this.msg.length > 0) {
+                    this.msg = this.msg.slice(0, -1);
+                }
                 return;
             }
             if (typeof keyCodes[code] !== "undefined") this.msg += keyCodes[code];

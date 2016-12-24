@@ -21,7 +21,8 @@ data class SnakeConfig(
         val name: String,
         val size: FieldSize,
         val tickTime: Int,
-        val foodCells: Int
+        val foodCells: Int,
+        val fillers: Array<String> = arrayOf()
 ) {
     init {
         check(tickTime >= 0) { "Tick time shouldn't be negative" }

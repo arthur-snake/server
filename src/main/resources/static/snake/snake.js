@@ -61,6 +61,25 @@ class SnakeMap {
             this.snake.emit("cell.update", x, y, event, old);
         }
     }
+
+    checkAll() {
+        for (let i = 0; i  < this.rows; i++) {
+            for (let j = 0; j < this.columns; j++) {
+                if (typeof this.map[i][j].id === "undefined") continue;
+                const info = this.snake.ids.get(this.map[i][j].id);
+                if (this.map[i][j].color == info.color) continue;
+                const old = this.map[i][j];
+                this.map[i][j] = {
+                    x: j,
+                    y: i,
+                    id: this.map[i][j].id,
+                    info: info,
+                    color: info.color
+                };
+                this.snake.emit("cell.update", j, i, this.map[i][j], old);
+            }
+        }
+    }
 }
 
 class Snake {
@@ -171,7 +190,10 @@ class Snake {
             this.map.update(events);
             this.emit("map.update", events);
         }
-        this.emit("server.tick");
+
+        if (typeof msg.u !== "undefined") this.map.checkAll();
+
+        this.emit("server.tick", msg);
     }
 
     join(nick) {

@@ -4,6 +4,7 @@ import com.petukhovsky.services.objectMapper
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
+import java.util.function.Consumer
 import kotlin.concurrent.timerTask
 
 class GameServer(val game: Game) {
@@ -13,6 +14,8 @@ class GameServer(val game: Game) {
     val tick = game.config.tickTime.toLong()
     val timer: Timer = Timer("Snake game: $game")
     var running = false
+
+    val listeners = mutableSetOf<Consumer<Game>>()
 
     fun start() {
         synchronized(this) {
@@ -35,6 +38,8 @@ class GameServer(val game: Game) {
 
     private fun tickServer() {
         synchronized(game) {
+            listeners.forEach { it.accept(game) }
+
             val players = game.players.sortedBy { it.size }
             players.forEach { it.moveFront() }
             players.forEach { it.moveBack() }

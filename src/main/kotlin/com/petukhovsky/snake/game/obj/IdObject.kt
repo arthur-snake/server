@@ -20,6 +20,6 @@ class PlayerObject(id: String, val player: SnakePlayer) : IdObject(id) {
     override fun toInfo(): IdInfo = IdInfo(id, "player", player.color, player.nickname)
 }
 
-class BlockObject(id: String) : IdObject(id) {
-    override fun toInfo(): IdInfo = IdInfo(id, "block", Color.block)
+class BlockObject(id: String, val color: String = Color.block) : IdObject(id) {
+    override fun toInfo(): IdInfo = IdInfo(id, "block", color)
 }

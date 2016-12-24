@@ -8,8 +8,8 @@ import com.petukhovsky.snake.util.SubService
 import com.petukhovsky.snake.util.RandomAccessField
 import java.util.*
 
-val VERSION = "v1.0.2"
-val UPDATE_NOTES = "Chat anti-ddos\nMobile no swipe fix\nOther fixes"
+val VERSION = "v1.0.3"
+val UPDATE_NOTES = "Small fixes\nSecret update"
 
 class Game(
         val config: SnakeConfig,
@@ -36,9 +36,15 @@ class Game(
 
     val builder = MessageBuilder(this)
 
-    val server = GameServer(this).apply { start() }
+    val server = GameServer(this)
 
     operator fun get(point: Pair<Int, Int>) = map[point.first][point.second]
 
     fun notifyChanged(snakeCell: SnakeCell) = changedCells.add(snakeCell)
+
+
+    init {
+        config.fillers.forEach { Fillers.find(it)?.fill(this) }
+        server.start()
+    }
 }
