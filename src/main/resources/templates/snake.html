@@ -93,13 +93,21 @@
                 <input id="nick" class="form-control" placeholder="Nick" maxlength="14"/>
             </div>
 
-            <div class="form-group">
-                <input id="swipe-checkbox" type="checkbox" value="" th:checked="true">Use swipe</input>
-            </div>
 
             <div class="form-group">
                 <input type="button" id="join" onclick="game.snake.join($('#nick').val()); return false;" class="btn btn-block btn-primary" value="Play"/>
             </div>
+
+            <div class="form-group">
+                <input type="button" id="spec" onclick="snake.emit('join'); return false;" class="btn btn-block btn-success" value="Spectate"/>
+            </div>
+
+            <div class="form-group">
+                <input id="swipe-checkbox" type="checkbox" value="" th:checked="true">Use swipe</input>
+            </div>
+
+            <hr/>
+
             <script type="text/javascript">
                 servers.getNames().forEach((item) => {
                     $('#droplist').append('<option>' + item + '</option>');
@@ -114,17 +122,9 @@
             </script>
         </form>
 
-        <hr />
-
         <span class="text-muted" style="text-align: center">Controls: Use arrows to control snake.<br/>Press escape to close game</span>
 
         <hr />
-
-        <!--Google ad place-->
-
-        <hr style="margin-bottom: 7px; "/>
-
-        <div style="margin-bottom: 5px; float: left; line-height: 32px; margin-left: 6px; height: 32px;"><a class="text-muted">123</a></div>
     </div>
 </div>
 
