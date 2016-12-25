@@ -2,6 +2,7 @@ package com.petukhovsky.snake.game
 
 import com.petukhovsky.snake.game.obj.BlockObject
 import com.petukhovsky.snake.game.obj.FreeObject
+import com.petukhovsky.snake.game.*
 import java.util.function.Consumer
 
 object Fillers {
@@ -72,17 +73,20 @@ object LifeFiller : Filler {
         var obj = BlockObject(game.obj.gen(), "#000000").apply { game.obj.add(this) }
 
         game.server.listeners.add (Consumer<Game> { game ->
+            val die = mutableListOf<SnakeCell>()
+            val life = mutableListOf<SnakeCell>()
             for (i in 0..game.rows - 1) {
                 for (j in 0..game.columns - 1) {
                     val cell = game.map[i][j]
                     if (cell.obj.id == obj.id) {
-                        if (game.config.size.calcNeighbours(i, j, game.map) !in 2..3) cell.set(game.obj.free)
+                        if (game.config.size.calcNeighbours(i, j, game.map) !in 2..3) die.add(cell)
                     } else if (cell.obj is FreeObject) {
-                        if (game.config.size.calcNeighbours(i, j, game.map) == 3) cell.set(obj)
+                        if (game.config.size.calcNeighbours(i, j, game.map) == 3) life.add(cell)
                     }
-
                 }
             }
+            die.forEach { it.set(game.obj.free) }
+            life.forEach { it.set(obj) }
         })
     }
 }

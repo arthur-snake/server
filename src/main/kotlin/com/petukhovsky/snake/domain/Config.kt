@@ -19,6 +19,7 @@ data class FieldSize(val height: Int, val width: Int) {
     fun calcNeighbours(y: Int, x: Int, map: Array<Array<SnakeCell>>): Int {
         return Direction.values()
                 .map { move(y, x, it) }
+                .plus(listOf(fit(y + 1, x + 1), fit(y + 1, x - 1), fit(y - 1, x + 1), fit(y - 1, x - 1)))
                 .count { !map[it.first][it.second].availableToJoin() }
     }
 }
