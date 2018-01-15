@@ -20,6 +20,8 @@ class SubService<T> {
         }
     }
 
+    fun hasAny(): Boolean = !map.isEmpty()
+
     fun broadcast(message: T) {
         synchronized(this) {
             val actions = map.values.toTypedArray()

@@ -8,8 +8,8 @@ import com.petukhovsky.snake.util.SubService
 import com.petukhovsky.snake.util.RandomAccessField
 import java.util.*
 
-val VERSION = "v1.0.5"
-val UPDATE_NOTES = "Html fixes"
+val VERSION = "v1.0.6"
+val UPDATE_NOTES = "Disable updating room with no subscribers"
 
 class Game(
         val config: SnakeConfig,

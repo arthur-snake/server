@@ -38,6 +38,10 @@ class GameServer(val game: Game) {
 
     private fun tickServer() {
         synchronized(game) {
+            if (!game.subs.hasAny()) {
+                return
+            }
+
             listeners.forEach { it.accept(game) }
 
             val players = game.players.sortedBy { it.size }

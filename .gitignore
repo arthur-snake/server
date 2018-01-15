@@ -15,3 +15,8 @@ build
 .gradle
 .idea
 out
+
+.classpath
+.project
+.settings
+bin
