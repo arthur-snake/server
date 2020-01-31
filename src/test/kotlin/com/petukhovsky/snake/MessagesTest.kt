@@ -7,12 +7,13 @@ import com.petukhovsky.snake.prot.LeaveMessage
 import com.petukhovsky.snake.prot.PlayerMessage
 import com.petukhovsky.snake.prot.TurnMessage
 import com.petukhovsky.snake.util.Direction
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class MessagesTest {
 
-    @Test fun test() {
+    @Test
+    fun test() {
         assertEquals(
                 objectMapper.readValue<PlayerMessage>("""{"act": "join", "nick": "Kek"}"""),
                 JoinMessage(nick = "Kek")
