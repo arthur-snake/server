@@ -42,7 +42,14 @@ open class SnakeConfigService {
 
     val dao = jsonDao<Array<SnakeConfig>>(Paths.get("/data/snake.servers.json"))
 
-    var snakeConfigs: Array<SnakeConfig> = dao.read() ?: arrayOf()
+    var snakeConfigs: Array<SnakeConfig> = dao.read() ?: arrayOf(
+            SnakeConfig(
+                    name = "main",
+                    size = FieldSize(width = 10, height = 10),
+                    tickTime = 500,  // in millis
+                    foodCells = 4
+            )
+    )
 
     fun getConfigByName(name: String): SnakeConfig? = snakeConfigs.find { it.name == name }
 }

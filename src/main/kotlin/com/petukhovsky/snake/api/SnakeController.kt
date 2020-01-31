@@ -18,10 +18,10 @@ class SnakeController @Autowired constructor(
         val config: SnakeConfigService
 ) {
 
-    @RequestMapping(value = "/snake")
+    @RequestMapping(value = ["/snake"])
     fun index(): String = "snake"
 
-    @RequestMapping(value = "/snake/servers.js")
+    @RequestMapping(value = ["/snake/servers.js"])
     @ResponseBody
     fun servers(
             req: HttpServletRequest

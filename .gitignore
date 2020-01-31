@@ -13,7 +13,9 @@ hs_err_pid*
 
 build
 .gradle
-.idea
+!.idea
+.idea/*
+!.idea/runConfigurations/
 out
 
 .classpath
