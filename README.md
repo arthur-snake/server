@@ -1,5 +1,6 @@
 # Snake game
 
-How to play?
-1. Run the ServicesApplication configuration in IDEA Ultimate.
-1. Open <http://localhost:8080/snake> in your browser.
+How to dev and play?
+1. Clone this repo
+1. Import as gradle project
+1. Run and open <http://localhost:8080/snake> in your browser.
